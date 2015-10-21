@@ -1,0 +1,122 @@
+---
+# common/tasks/main.yml
+
+- name: Set fact with host's external IPv4 address
+  set_fact: public_ipv4_address={{ansible_default_ipv4.address}}
+  when: public_ipv4_address is not defined
+  tags: hostname
+
+- name: Set fact with host's external IPv6 address
+  set_fact: public_ipv6_address={{ansible_default_ipv6.address}}
+  when: public_ipv6_address is not defined
+  tags: hostname
+
+- name: Update the apt-get cache
+  apt: update_cache=yes
+
+- name: Update all packages to the latest version
+  apt: upgrade=dist
+
+- name: Install common packages
+  apt: pkg={{ item }} state=installed
+  with_items:
+    - curl
+    - dnsutils
+    - fail2ban
+    - git
+    - make
+    - monit
+    - mosh
+    - ntpdate
+    - postfix
+    - python-keyczar
+    - python-software-properties
+    - rsync
+    - screen
+    - tzdata
+
+- name: Copy custom fail2ban jail.conf
+  copy: src={{ files }}/etc/fail2ban/jail.conf dest=/etc/fail2ban owner=root group=root mode=0644
+  notify:
+    - restart fail2ban
+  tags: [security, fail2ban]
+
+- name: Copy Mandrill postfix mail.cf
+  template: src={{ files }}/etc/postfix/main.cf-mandrill.j2 dest=/etc/postfix/main.cf-mandrill owner=root group=root mode=0644
+  notify:
+    - restart postfix
+  when: mandrill_username is defined
+  tags: [email, main.cf, mandrill]
+
+- name: Copy SendGrid postfix mail.cf
+  template: src={{ files }}/etc/postfix/main.cf-sendgrid.j2 dest=/etc/postfix/main.cf-sendgrid owner=root group=root mode=0644
+  notify:
+    - restart postfix
+  when: sendgrid_username is defined
+  tags: [email, main.cf, sendgrid]
+
+- name: Backup default mail.cf
+  shell: mv /etc/postfix/main.cf /etc/postfix/main.cf.`date "+%Y%m%d%H%M%S"`
+  ignore_errors: yes
+  tags: [email, main.cf]
+
+- name: Symlink to postfix mail.cf
+  shell: ln -s main.cf-{{ mail_service }} main.cf
+  args:
+    chdir: /etc/postfix
+  notify:
+    - restart postfix
+  tags: [email, main.cf]
+
+- name: Copy iptables startup script
+  copy: src={{ files }}/etc/network/if-pre-up.d/iptables dest=/etc/network/if-pre-up.d owner=root group=root mode=0750
+  tags: [security, firewall]
+
+- name: Copy iptables shutdown script
+  copy: src={{ files }}/etc/network/if-down.d/iptables_save dest=/etc/network/if-down.d owner=root group=root mode=0750
+  tags: [security, firewall]
+
+- name: Copy iptables config
+  copy: src={{ files }}/etc/iptables.up.rules dest=/etc owner=root group=root mode=0640
+  notify:
+    - start firewall
+  tags: [security, firewall]
+
+- name: Copy ntpdate cron
+  copy: src={{ files }}/etc/cron.hourly/ntpdate dest=/etc/cron.hourly owner=root group=root mode=0750
+  tags: [ntpdate]
+
+- name: Upload and apply network hardening rules.
+  copy: src={{ files }}/etc/sysctl.d/20-custom-network-security.conf dest=/etc/sysctl.d owner=root group=root mode=0644
+  notify:
+    - harden IP stack
+  tags: [security]
+
+- name: check if monit is being managed by upstart
+  stat: path=/etc/init/monit.conf
+  register: monit_upstart
+  tags: [monit]
+
+- name: prepare to have monit supervised by upstart by disabling monit init.d config
+  shell: /etc/init.d/monit stop && /usr/sbin/update-rc.d -f monit remove
+  when: monit_upstart.stat.exists = False
+  tags: [monit]
+
+- name: copy monit upstart config
+  copy: src={{ files }}/etc/init/monit.conf dest=/etc/init owner=root group=root mode=0644
+  notify:
+    - reload upstart config
+    - start monit
+  tags: [monit]
+
+- name: copy custom monit-10 config (10 second check interval)
+  template: src={{ files }}/etc/monit/monitrc-10.j2 dest=/etc/monit/monitrc-10 owner=root group=root mode=0600
+  notify:
+    - restart monit
+  tags: [monit, monit-config]
+
+- name: copy custom monit-60 config (60 second check interval)
+  template: src={{ files }}/etc/monit/monitrc-60.j2 dest=/etc/monit/monitrc-60 owner=root group=root mode=0600
+  notify:
+    - restart monit
+  tags: [monit, monit-config]
