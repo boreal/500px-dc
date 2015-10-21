@@ -1,0 +1,28 @@
+---
+# nginx/tasks/main.yml
+
+- name: Update the apt-get cache
+  apt: update_cache=yes
+
+- name: Install packages
+  action: apt pkg={{ item }} state=installed
+  with_items:
+    - nginx-extras
+    - nginx-common
+  tags: [nginx]
+
+- name: copy custom nginx.conf
+  copy: src={{ files }}/etc/nginx/nginx.conf dest=/etc/nginx owner=root group=staff mode=0664
+  notify:
+    - reload nginx
+  tags: [nginx, nginx_config, nginx_dot_conf]
+
+- name: update nginx open file limits using ulimit in default file
+  copy: src={{ files }}/etc/default/nginx dest=/etc/default owner=root group=root mode=0644
+  notify:
+    - restart nginx
+  tags: [nginx, limits]
+
+- name: ensure nginx is running and will start at boot
+  service: name=nginx state=started enabled=yes
+  tags: [nginx]
