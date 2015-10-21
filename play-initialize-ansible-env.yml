@@ -2,6 +2,7 @@
 - hosts: localhost
   gather_facts: false
 
+  var_prompt:
     - name: "monitoring_email"
       prompt: "Monitoring email address"
       default: "sysops@example.com"
