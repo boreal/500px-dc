@@ -1,0 +1,15 @@
+---
+# redis/tasks/main.yml
+
+- name: Update the apt-get cache
+  apt: update_cache=yes
+
+- name: Install packages
+  action: apt pkg={{ item }} state=installed
+  with_items:
+    - redis-server
+  tags: [redis]
+
+- name: ensure redis is running and will start at boot
+  service: name=redis-server state=started enabled=yes
+  tags: [redis]
