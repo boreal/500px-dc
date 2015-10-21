@@ -1,0 +1,36 @@
+---
+- hosts: localhost
+  gather_facts: false
+
+    - name: "monitoring_email"
+      prompt: "Monitoring email address"
+      default: "sysops@example.com"
+      private: no
+
+    - name: "mandrill_username"
+      prompt: "Mandrill username"
+      default: ""
+      private: no
+
+    - name: "mandrill_password"
+      prompt: "Mandrill password"
+      default: ""
+      private: yes
+
+    - name: "sendgrid_username"
+      prompt: "Sendgrid username"
+      default: ""
+      private: no
+
+    - name: "sendgrid_password"
+      prompt: "Sendgrid password"
+      default: ""
+      private: yes
+
+    - name: "email_service"
+      prompt: "Default email service"
+      default: "mandrill"
+      private: no
+
+  roles:
+     - init-env
