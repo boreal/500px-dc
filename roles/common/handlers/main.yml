@@ -24,7 +24,7 @@
 - name: restart nginx
   service: name=nginx state=restarted enabled=yes
 
-- name: reload upstart
+- name: reload upstart config
   command: /sbin/initctl reload-configuration
 
 - name: restart monit

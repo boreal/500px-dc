@@ -1,0 +1,52 @@
+---
+# roshi/tasks/main.yml
+
+- name: Update the apt-get cache
+  apt: update_cache=yes
+  tags: [roshi]
+
+- name: Install packages
+  action: apt pkg={{ item }} state=installed
+  with_items:
+    - golang
+    - git
+  tags: [roshi]
+
+- name: Create a group for roshi
+  group: name=roshi state=present
+  tags: [roshi]
+
+- name: Create a user for roshi
+  user: group=roshi name="Roshi Service"
+  tags: [roshi]
+
+- name: Create roshi directory structure
+  file: path=~roshi/src/github/soundcloud
+  tags: [roshi]
+
+- name: Clone the roshi repo
+  git: repo=https://github.com/soundcloud/roshi.git
+       dest=~roshi/src/github/soundcloud/roshi
+       recursive=yes
+       accept_hostkey=yes
+  tags: [roshi]
+
+- name: Build roshi
+  shell: export GOPATH=$HOME && make
+  args:
+      chdir: ~roshi/src/github.com/soundcloud/roshi/roshi-server
+      creates: ~roshi/src/github.com/soundcloud/roshi/roshi-server/roshi-server
+  tags: [roshi]
+
+- name: Copy upstart script for roshi-server
+  copy: src={{ files }}/etc/init/roshi-server.conf dest=/etc/init owner=root group=root mode=0644
+  notify:
+  tags: [roshi]
+
+- name: reload upstart config
+  command: /sbin/initctl reload-configuration
+  tags: [roshi]
+
+- name: Start roshi-server
+  command: start roshi-server
+  tags: [roshi]
