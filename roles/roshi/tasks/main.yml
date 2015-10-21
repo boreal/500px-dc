@@ -31,7 +31,7 @@
        accept_hostkey=yes
   tags: [roshi]
 
-- name: Build roshi
+- name: Build roshi-server
   shell: make
   args:
       chdir: ~roshi/src/github.com/soundcloud/roshi/roshi-server
@@ -49,5 +49,5 @@
   tags: [roshi]
 
 - name: Start roshi-server
-  command: start roshi-server
+  service: name=roshi-server state=started
   tags: [roshi]
