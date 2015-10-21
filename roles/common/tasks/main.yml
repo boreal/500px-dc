@@ -89,7 +89,7 @@
 
 - name: prepare to have monit supervised by upstart by disabling monit init.d config
   shell: /etc/init.d/monit stop && /usr/sbin/update-rc.d -f monit remove
-  when: monit_upstart.stat.exist = False
+  when: monit_upstart.stat.exists == False
   tags: [monit]
 
 - name: copy monit upstart config
