@@ -14,7 +14,7 @@ Create a hosts file in the repo root by copying and pasting the following on the
 
 Replace dc.example.com with a hostname that you can reach.
 
-In order to configure the server with a working mail system we need to ask for account details for either Mandrill or Sendgrid. Both offer free accounts. Optionally you can leave the values empty, but it's nice to have a working mail system for monitoring and alerting. To inititalized the ansible environment run the following command and just hit enter to accept the default values:
+In order to configure the server with a working mail system we need to ask for account details for either Mandrill or Sendgrid. Both offer free accounts. Optionally you can leave the values empty, but it's nice to have a working mail system for monitoring and alerting. To inititalized the ansible environment run the following command and just hit enter to accept the default values if you don't have the credentials:
 
 	ansible-playbook -i hosts play-initialize-ansible-env.yml -v
 
