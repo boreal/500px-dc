@@ -28,5 +28,10 @@ To build the full service stack run the play-fullstack.yml playbook. Here's what
 
 Reboot the server after the deployment completes error free.
 
-### Monitoring
-Monit monitors the services (nginx, roshi-server and redis) and upstart monitors monit.
+### Supervising
+Monit supervises the nginx, roshi-server and redis services while upstart monitors monit.
+
+### Testing
+The "test" role executes the three core functions, insert, select and delete. After the stack has been deployed the tests can be run independently using the --tag option:
+
+	ansible-playbook -i hosts play-fullstack.yml -v -u ubuntu --sudo --private-key ~/.ssh/aws-us-east.pem  -l 500px-dc --tags test
