@@ -42,3 +42,16 @@ Monit supervises the nginx, roshi-server and redis services while upstart monito
 The "test" role executes the three core functions, insert, select and delete. After the stack has been deployed the tests can be run independently using the --tag option:
 
 	ansible-playbook -i hosts play-fullstack.yml -v -u ubuntu --sudo --private-key ~/.ssh/aws-us-east.pem  -l 500px-dc --tags test
+
+### Configuration Management and Rolling Updates
+Ansible provides a great way to implement rolling updates with the --tags option. By labeling commands with unique and common tags it makes it really easy to update very specific areas of the stack. For example, if you have a new firewall rule, add it to the rules file in files/etc/iptables.up.rules and then deploy with:
+
+	ansible-playbook -i hosts play-fullstack.yml -v -u ubuntu --sudo --private-key ~/.ssh/aws-us-east.pem  -l 500px-dc --tags firewall
+
+To deploy the latest version of roshi
+
+	ansible-playbook -i hosts play-fullstack.yml -v -u ubuntu --sudo --private-key ~/.ssh/aws-us-east.pem  -l 500px-dc --tags roshi
+
+Deploy updates to the nginx configuration
+
+	ansible-playbook -i hosts play-fullstack.yml -v -u ubuntu --sudo --private-key ~/.ssh/aws-us-east.pem  -l 500px-dc --tags nginx_config
