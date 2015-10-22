@@ -1,0 +1,49 @@
+---
+# test/tasks/main.yml
+
+- name: upload test data
+  action: copy src={{ files }}/test/{{ item }} dest=/home/roshi
+  with_items:
+      - insert.json
+      - select.json
+      - delete.json
+  tags: [test]
+
+- name: test the stack is working - insert
+  shell: curl -Ss -d@/home/roshi/insert.json -XPOST http://localhost
+  register: test_result_insert
+  tags: [test, test-insert]
+
+- assert:
+       that:
+         - "'Connection refused' not in test_result_insert.stderr"
+         - "'502 Bad Gateway' not in test_result_insert.stdout"
+         - "':{}' not in test_result_insert.stdout"
+         - "'inserted' in test_result_insert.stdout"
+  tags: [test, test-insert]
+
+- name: test the stack is working - select
+  shell: curl -Ss -d@/home/roshi/select.json -XGET http://localhost
+  register: test_result_insert
+  tags: [test, test-select]
+
+- assert:
+       that:
+         - "'Connection refused' not in test_result_insert.stderr"
+         - "'502 Bad Gateway' not in test_result_insert.stdout"
+         - "':{}' not in test_result_insert.stdout"
+         - "'key' in test_result_insert.stdout"
+  tags: [test, test-select]
+
+- name: test the stack is working - delete
+  shell: curl -Ss -d@/home/roshi/delete.json -XDELETE http://localhost
+  register: test_result_insert
+  tags: [test, test-delete]
+
+- assert:
+       that:
+         - "'Connection refused' not in test_result_insert.stderr"
+         - "'502 Bad Gateway' not in test_result_insert.stdout"
+         - "':{}' not in test_result_insert.stdout"
+         - "'deleted' in test_result_insert.stdout"
+  tags: [test, test-delete]
