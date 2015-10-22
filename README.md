@@ -1,9 +1,15 @@
 ## 500px DevOps Challenge
 
+### Clone this repo
+
+	git clone https://github.com/boreal/500px-dc
+	
 ### Environment initialization
 
 Create a hosts file in the repo root by copying and pasting the following on the command line:
 
+	cd 500px-dc
+	
 	cat <<EOF > hosts
 	[local]
 	localhost
@@ -11,6 +17,7 @@ Create a hosts file in the repo root by copying and pasting the following on the
 	[500px-dc]
 	dc.example.com
 	EOF
+	
 
 Replace dc.example.com with a hostname that you can reach.
 
