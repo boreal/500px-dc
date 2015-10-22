@@ -13,9 +13,11 @@
 
 - name: copy custom nginx.conf
   copy: src={{ files }}/etc/nginx/nginx.conf dest=/etc/nginx owner=root group=staff mode=0664
-  notify:
-    - reload nginx
   tags: [nginx, nginx_config, nginx_dot_conf]
+
+- name: restart nginx
+  service: name=nginx state=restarted
+  tags: [nginx]
 
 - name: update nginx open file limits using ulimit in default file
   copy: src={{ files }}/etc/default/nginx dest=/etc/default owner=root group=root mode=0644
