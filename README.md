@@ -2,19 +2,19 @@
 
 ### Clone this repo
 
-	git clone https://github.com/boreal/500px-dc
+	git clone https://github.com/boreal/roshi-nginx-via-ansible
 	
 ### Environment initialization
 
 Create a hosts file in the repo root by copying and pasting the following on the command line:
 
-	cd 500px-dc
+	cd roshi-nginx-via-ansible
 	
 	cat <<EOF > hosts
 	[local]
 	localhost
 	
-	[500px-dc]
+	[testing]
 	dc.example.com
 	EOF
 	
@@ -46,12 +46,12 @@ The "test" role executes the three core functions, insert, select and delete. Af
 ### Configuration Management and Rolling Updates
 Ansible provides a great way to implement rolling updates with the --tags option. By labeling commands with unique and common tags it makes it really easy to update very specific areas of the stack. For example, if you have a new firewall rule, add it to the rules file in files/etc/iptables.up.rules and then deploy with:
 
-	ansible-playbook -i hosts play-fullstack.yml -v -u ubuntu --sudo --private-key ~/.ssh/aws-us-east.pem  -l 500px-dc --tags firewall
+	ansible-playbook -i hosts play-fullstack.yml -v -u ubuntu --sudo --private-key ~/.ssh/aws-us-east.pem  -l testing --tags firewall
 
 To deploy the latest version of roshi
 
-	ansible-playbook -i hosts play-fullstack.yml -v -u ubuntu --sudo --private-key ~/.ssh/aws-us-east.pem  -l 500px-dc --tags roshi
+	ansible-playbook -i hosts play-fullstack.yml -v -u ubuntu --sudo --private-key ~/.ssh/aws-us-east.pem  -l testing --tags roshi
 
 Deploy updates to the nginx configuration
 
-	ansible-playbook -i hosts play-fullstack.yml -v -u ubuntu --sudo --private-key ~/.ssh/aws-us-east.pem  -l 500px-dc --tags nginx_config
+	ansible-playbook -i hosts play-fullstack.yml -v -u ubuntu --sudo --private-key ~/.ssh/aws-us-east.pem  -l testing --tags nginx_config
