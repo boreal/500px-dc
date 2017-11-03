@@ -1,4 +1,4 @@
-## 500px DevOps Challenge
+## DevOps Challenge
 
 ### Clone this repo
 
